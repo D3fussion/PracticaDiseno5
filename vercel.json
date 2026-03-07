@@ -1,4 +1,7 @@
 {
+    "devCommand": "npx vite --port $PORT",
+    "buildCommand": "npx vite build",
+    "outputDirectory": "public/dist",
     "headers": [
         {
             "source": "/api/(.*)",

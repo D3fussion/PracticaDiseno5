@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@plugin "daisyui";
+@plugin "tailwindcss-animate";
+@plugin "tailwind-scrollbar";
+@plugin "tailwind-scrollbar-hide";
+
+@theme {
+    --font-handwriting: "Kalam", cursive;
+    --breakpoint-xs: 375px;
+}
+
+.tarea-lista-inactiva {
+    @apply border-b border-gray-300 p-3 flex items-center cursor-pointer hover:bg-gray-100 gap-4 transition-colors duration-300 ease-in-out;
+}
+
+.tarea-lista-activa {
+    @apply border-b border-gray-300 p-3 flex items-center cursor-pointer hover:bg-red-200 bg-red-100 gap-4 transition-colors duration-300 ease-in-out;
+}

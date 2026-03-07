@@ -1,22 +1,31 @@
 {
-  "name": "practicadiseno5",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "@tailwindcss/cli": "^4.2.1",
-    "@tailwindcss/forms": "^0.5.11",
-    "daisyui": "^5.5.19",
-    "tailwind-scrollbar": "^4.0.2",
-    "tailwind-scrollbar-hide": "^4.0.0",
-    "tailwindcss": "^4.2.1",
-    "tailwindcss-animate": "^1.0.7"
-  }
+    "name": "practicadiseno5",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "module",
+    "dependencies": {
+        "@nanostores/query": "^0.3.4",
+        "@tailwindcss/forms": "^0.5.11",
+        "@tailwindcss/vite": "^4.2.1",
+        "daisyui": "^5.5.19",
+        "ky": "^1.14.3",
+        "mongoose": "^9.2.4",
+        "nanostores": "^1.1.1",
+        "tailwind-scrollbar": "^4.0.2",
+        "tailwind-scrollbar-hide": "^4.0.0",
+        "tailwindcss": "^4.2.1",
+        "tailwindcss-animate": "^1.0.7"
+    },
+    "devDependencies": {
+        "vite": "^7.3.1"
+    }
 }
