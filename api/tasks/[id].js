@@ -23,15 +23,15 @@ export default async function handler(req, res) {
                     runValidators: true,
                 });
 
+                const tasks = await Task.find({});
+
                 if (!updatedTask) {
                     return res
                         .status(404)
                         .json({ success: false, error: "Tarea no encontrada" });
                 }
 
-                return res
-                    .status(200)
-                    .json({ success: true, data: updatedTask });
+                return res.status(200).json({ success: true, data: tasks });
             } catch (error) {
                 console.log(error);
                 return res.status(400).json({
