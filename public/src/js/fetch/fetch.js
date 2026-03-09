@@ -7,21 +7,27 @@ import {
 
 export const tasksQuery = createQuery("");
 
-export const createTaskMutator = createMutator(async ({ data }) => {
-    const response = await apiClient.post("", { json: data }).json();
+export const createTaskMutator = createMutator(
+    async ({ data: { title, description, completed } }) => {
+        const response = await apiClient
+            .post("", { json: { title, description, completed } })
+            .json();
 
-    invalidateKeys("");
+        invalidateKeys("");
 
-    return response.data;
-});
+        return response.data;
+    },
+);
 
-export const updateTaskMutator = createMutator(async ({ id, data }) => {
-    const response = await apiClient.put(String(id), { json: data }).json();
+export const updateTaskMutator = createMutator(
+    async ({ data: { id, data } }) => {
+        const response = await apiClient.put(String(id), { json: data }).json();
 
-    return response.data;
-});
+        return response.data;
+    },
+);
 
-export const deleteTaskMutator = createMutator(async ({ id }) => {
+export const deleteTaskMutator = createMutator(async ({ data: { id } }) => {
     const response = await apiClient.delete(String(id)).json();
 
     invalidateKeys("");

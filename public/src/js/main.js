@@ -1,130 +1,27 @@
-// Funciones que se conectan a la API
+import {
+    tasksQuery,
+    createTaskMutator,
+    updateTaskMutator,
+    deleteTaskMutator,
+} from "./fetch/fetch.js";
 
-async function obtenerTareas() {
-    const response = await fetch("/api/tasks");
+import "./ui/subscribers.js";
 
-    if (!response.ok) {
-        throw new Error(
-            `Error del servidor: ${response.status} ${response.statusText}`,
-        );
-    }
+export let tareaActual = null;
 
-    console.log(response);
-
-    const data = await response.json();
-
-    console.log(data);
-
-    if (!data.success) {
-        throw new Error(data.error);
-    }
-
-    if (data.data.length === 0) {
-        await crearTarea({
-            title: "Nota 1",
-            description: "",
-            completed: false,
-        });
-
-        return await obtenerTareas();
-    }
-
-    return data.data;
-}
-
-async function crearTarea(tarea) {
-    const response = await fetch("/api/tasks", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(tarea),
-    });
-    const data = await response.json();
-
-    if (!data.success) {
-        throw new Error(data.error);
-    }
-
-    return data.data;
-}
-
-async function editarTarea(id, tarea) {
-    const response = await fetch(`/api/tasks/${id}`, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(tarea),
-    });
-    const data = await response.json();
-
-    if (!data.success) {
-        throw new Error(data.error);
-    }
-
-    return data.data;
-}
-
-async function eliminarTarea(id) {
-    const response = await fetch(`/api/tasks/${id}`, {
-        method: "DELETE",
-    });
-    const data = await response.json();
-
-    if (!data.success) {
-        throw new Error(data.error);
-    }
-
-    return data.data;
-}
-
-// Funciones que se conectan al HTML
-
-async function insertarTareasHTML(tareas) {
-    const listaTareas = document.getElementById("listaTareas");
-    const template = document.getElementById("tarea-lista-template");
-    listaTareas.innerHTML = "";
-    tareas.forEach((tarea, index) => {
-        const clone = template.content.cloneNode(true);
-        const li = clone.firstElementChild; // Necesario porque 'clone' es un DocumentFragment, no un nodo de elemento regular
-
-        if (index == 0) {
-            li.className = "tarea-lista-activa";
-        } else {
-            li.className = "tarea-lista-inactiva";
-        }
-        li.querySelector(".tarea-lista-titulo").textContent = tarea.title;
-        li.querySelector(".tarea-lista-fecha").textContent = new Date(
-            tarea.createdAt,
-        ).toLocaleTimeString("es-MX", {
-            hour: "2-digit",
-            minute: "2-digit",
-        });
-
-        li.addEventListener("click", () => {
-            const activa = listaTareas.querySelector(".tarea-lista-activa");
-            if (activa) {
-                activa.className = "tarea-lista-inactiva";
-            }
-            li.className = "tarea-lista-activa";
-
-            asignarTareaActual(tarea);
-        });
-
-        listaTareas.appendChild(clone);
-    });
-}
-
-function asignarTareaActual(tarea) {
+export function setTareaActual(tarea) {
     tareaActual = tarea;
-    document
-        .getElementById("tituloNotaContainer")
-        .querySelector(".titulo-nota").textContent = tarea.title;
-    document.getElementById("descripcionNota").value = tarea.description;
 }
 
-async function guardarTareaActual() {
+export async function crearTaskHTML() {
+    await createTaskMutator.mutate({
+        title: "Tarea Nueva",
+        description: "",
+        completed: false,
+    });
+}
+
+export async function guardarTareaActual() {
     if (!tareaActual) return;
 
     const datosActualizados = {
@@ -133,10 +30,15 @@ async function guardarTareaActual() {
             .querySelector(".titulo-nota").textContent,
         description: document.getElementById("descripcionNota").value,
     };
-    tareaActual = await editarTarea(tareaActual._id, datosActualizados);
+
+    await updateTaskMutator.mutate({
+        id: tareaActual._id,
+        data: datosActualizados,
+    });
+    tareaActual = { ...tareaActual, ...datosActualizados };
 }
 
-function editarTituloActual() {
+export function editarTituloActual() {
     const tituloActualContainer = document.getElementById(
         "tituloNotaContainer",
     );
@@ -144,7 +46,6 @@ function editarTituloActual() {
         .querySelector(".titulo-nota")
         .textContent.trim();
     const templateTitulo = document.getElementById("titulo-nota-template");
-    const templateTituloClone = templateTitulo.content.cloneNode(true);
     const template = document.getElementById("input-cambiar-titulo-template");
     const clone = template.content.cloneNode(true);
     const inputTitulo = clone.querySelector(".input-cambiar-titulo");
@@ -155,39 +56,118 @@ function editarTituloActual() {
     inputTitulo.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
             let nuevoTitulo = inputTitulo.value.trim();
-            if (!nuevoTitulo) {
-                nuevoTitulo = tituloActual;
-            }
+            if (!nuevoTitulo) nuevoTitulo = tituloActual;
 
-            tituloActualContainer.innerHTML = "";
+            const templateTituloClone = templateTitulo.content.cloneNode(true);
             templateTituloClone.querySelector(".titulo-nota").textContent =
                 nuevoTitulo;
+            tituloActualContainer.innerHTML = "";
             tituloActualContainer.appendChild(templateTituloClone);
-            tareaActual.title = nuevoTitulo;
-            editarTarea(tareaActual._id, { title: nuevoTitulo });
+
+            if (tareaActual) {
+                tareaActual.title = nuevoTitulo;
+                updateTaskMutator.mutate({
+                    id: tareaActual._id,
+                    data: { title: nuevoTitulo },
+                });
+            }
         }
     });
 }
 
-// Main
+export function anteriorTask() {
+    const lista = tasksQuery.get()?.data;
+    if (!lista || !tareaActual) return;
+    const idx = lista.findIndex((t) => t._id === tareaActual._id);
+    if (idx > 0) seleccionarTareaEnLista(lista[idx - 1]);
+}
 
-let tareaActual = null;
-let listaTareas = [];
+export function siguienteTask() {
+    const lista = tasksQuery.get()?.data;
+    if (!lista || !tareaActual) return;
+    const idx = lista.findIndex((t) => t._id === tareaActual._id);
+    if (idx < lista.length - 1) seleccionarTareaEnLista(lista[idx + 1]);
+}
 
-document.addEventListener("DOMContentLoaded", async () => {
-    listaTareas = await obtenerTareas();
-    insertarTareasHTML(listaTareas);
-    asignarTareaActual(listaTareas[0]);
+export function eliminarTaskActual() {
+    if (!tareaActual) return;
+    deleteTaskMutator.mutate({ id: tareaActual._id });
+}
 
-    tareaActual = listaTareas[0];
+export function seleccionarTareaEnLista(tarea) {
+    tareaActual = tarea;
+
+    for (const ulId of ["listaTareas", "listaTareasDrawer"]) {
+        const ul = document.getElementById(ulId);
+        if (!ul) continue;
+        ul.querySelectorAll("li").forEach((li) => {
+            li.className =
+                li.dataset.id === String(tarea._id)
+                    ? "tarea-lista-activa"
+                    : "tarea-lista-inactiva";
+        });
+    }
+
+    document
+        .getElementById("tituloNotaContainer")
+        .querySelector(".titulo-nota").textContent = tarea.title;
+    document.getElementById("descripcionNota").value = tarea.description;
+}
+
+window.crearTaskHTML = crearTaskHTML;
+window.editarTituloActual = editarTituloActual;
+window.anteriorTask = anteriorTask;
+window.siguienteTask = siguienteTask;
+window.eliminarTaskActual = eliminarTaskActual;
+
+function filtrarTareas(termino) {
+    const query = termino.trim().toLowerCase();
+    for (const ulId of ["listaTareas", "listaTareasDrawer"]) {
+        const ul = document.getElementById(ulId);
+        if (!ul) continue;
+        ul.querySelectorAll("li").forEach((li) => {
+            const titulo =
+                li
+                    .querySelector(".tarea-lista-titulo")
+                    ?.textContent.toLowerCase() ?? "";
+            li.style.display = titulo.includes(query) ? "" : "none";
+        });
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    tasksQuery.fetch();
 
     let temporizadorGuardado;
-
     document.getElementById("descripcionNota").addEventListener("input", () => {
         clearTimeout(temporizadorGuardado);
-
         temporizadorGuardado = setTimeout(() => {
             guardarTareaActual();
         }, 1000);
     });
+
+    document
+        .getElementById("buscarNotas")
+        ?.addEventListener("submit", (e) => e.preventDefault());
+    document
+        .getElementById("inputBuscarDrawer")
+        ?.closest("form")
+        ?.addEventListener("submit", (e) => e.preventDefault());
+
+    const inputDesktop = document.getElementById("inputBuscarDesktop");
+    const inputDrawer = document.getElementById("inputBuscarDrawer");
+
+    function onBuscar(e) {
+        const valor = e.target.value;
+        if (e.target === inputDesktop && inputDrawer) inputDrawer.value = valor;
+        if (e.target === inputDrawer && inputDesktop)
+            inputDesktop.value = valor;
+        filtrarTareas(valor);
+    }
+
+    inputDesktop?.addEventListener("input", onBuscar);
+    inputDrawer?.addEventListener("input", onBuscar);
+
+    inputDesktop?.addEventListener("search", onBuscar);
+    inputDrawer?.addEventListener("search", onBuscar);
 });

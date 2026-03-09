@@ -50,9 +50,9 @@ export default async function handler(req, res) {
                         .json({ success: false, error: "Tarea no encontrada" });
                 }
 
-                return res
-                    .status(200)
-                    .json({ success: true, data: deletedTask });
+                const tasks = await Task.find({});
+
+                return res.status(200).json({ success: true, data: tasks });
             } catch (error) {
                 console.log(error);
                 return res.status(400).json({

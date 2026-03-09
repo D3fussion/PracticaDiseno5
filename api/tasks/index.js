@@ -20,8 +20,9 @@ export default async function handler(req, res) {
 
         case "POST":
             try {
-                const newTask = await Task.create(req.body);
-                return res.status(201).json({ success: true, data: newTask });
+                await Task.create(req.body);
+                const tasks = await Task.find({});
+                return res.status(201).json({ success: true, data: tasks });
             } catch (error) {
                 console.log(error);
                 return res
