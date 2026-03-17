@@ -1,37 +1,47 @@
 import { connectToDatabase } from "../../utils/db.js";
 import Task from "../../models/Task.js";
+import { verificarToken } from "../../utils/auth.js";
 
 export default async function handler(req, res) {
-    await connectToDatabase();
+    try {
+        await connectToDatabase();
 
-    const { method } = req;
+        const { method } = req;
 
-    switch (method) {
-        case "GET":
-            try {
-                const tasks = await Task.find({});
-                return res.status(200).json({ success: true, data: tasks });
-            } catch (error) {
-                console.log(error);
-                return res
-                    .status(500)
-                    .json({ success: false, error: "Error al obtener tareas" });
-            }
+        const decodificado = await verificarToken(req);
 
-        case "POST":
-            try {
-                await Task.create(req.body);
-                const tasks = await Task.find({});
-                return res.status(201).json({ success: true, data: tasks });
-            } catch (error) {
-                console.log(error);
-                return res
-                    .status(400)
-                    .json({ success: false, error: "Error al crear la tarea" });
-            }
+        switch (method) {
+            case "GET":
+                try {
+                    const tasks = await Task.find({ userEmail: decodificado.email });
+                    return res.status(200).json({ success: true, data: tasks });
+                } catch (error) {
+                    console.log(error);
+                    return res.status(500).json({
+                        success: false,
+                        error: "Error al obtener tareas",
+                    });
+                }
 
-        default:
-            res.setHeader("Allow", ["GET", "POST"]);
-            return res.status(405).end(`Método ${method} no permitido`);
+            case "POST":
+                try {
+                    await Task.create({ ...req.body, userEmail: decodificado.email });
+                    const tasks = await Task.find({ userEmail: decodificado.email });
+                    return res.status(201).json({ success: true, data: tasks });
+                } catch (error) {
+                    console.log(error);
+                    return res.status(400).json({
+                        success: false,
+                        error: "Error al crear la tarea",
+                    });
+                }
+
+            default:
+                res.setHeader("Allow", ["GET", "POST"]);
+                return res.status(405).end(`Método ${method} no permitido`);
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(401).json({ success: false, error: error.message });
     }
 }

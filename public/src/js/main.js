@@ -4,6 +4,7 @@ import {
     updateTaskMutator,
     deleteTaskMutator,
 } from "./fetch/fetch.js";
+import { checarSesion, iniciarLogin } from "./login/login.js";
 
 import "./ui/subscribers.js";
 
@@ -94,15 +95,30 @@ export function eliminarTaskActual() {
     deleteTaskMutator.mutate({ id: tareaActual._id });
 }
 
+export async function cerrarSesion() {
+    try {
+        await fetch("/api/login/logout", {
+            method: "POST",
+        });
+        window.location.reload();
+    } catch (error) {
+        console.error("Error al cerrar sesión:", error);
+    }
+}
+
 export function seleccionarTareaEnLista(tarea) {
-    tareaActual = tarea;
+    const listaActual = tasksQuery.get()?.data;
+    const tareaFresca =
+        listaActual?.find((t) => String(t._id) === String(tarea._id)) ?? tarea;
+
+    tareaActual = tareaFresca;
 
     for (const ulId of ["listaTareas", "listaTareasDrawer"]) {
         const ul = document.getElementById(ulId);
         if (!ul) continue;
         ul.querySelectorAll("li").forEach((li) => {
             li.className =
-                li.dataset.id === String(tarea._id)
+                li.dataset.id === String(tareaFresca._id)
                     ? "tarea-lista-activa"
                     : "tarea-lista-inactiva";
         });
@@ -110,8 +126,8 @@ export function seleccionarTareaEnLista(tarea) {
 
     document
         .getElementById("tituloNotaContainer")
-        .querySelector(".titulo-nota").textContent = tarea.title;
-    document.getElementById("descripcionNota").value = tarea.description;
+        .querySelector(".titulo-nota").textContent = tareaFresca.title;
+    document.getElementById("descripcionNota").value = tareaFresca.description;
 }
 
 window.crearTaskHTML = crearTaskHTML;
@@ -119,6 +135,7 @@ window.editarTituloActual = editarTituloActual;
 window.anteriorTask = anteriorTask;
 window.siguienteTask = siguienteTask;
 window.eliminarTaskActual = eliminarTaskActual;
+window.cerrarSesion = cerrarSesion;
 
 function filtrarTareas(termino) {
     const query = termino.trim().toLowerCase();
@@ -135,8 +152,9 @@ function filtrarTareas(termino) {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    tasksQuery.fetch();
+document.addEventListener("DOMContentLoaded", async () => {
+    iniciarLogin();
+    const sesionOk = await checarSesion();
 
     let temporizadorGuardado;
     document.getElementById("descripcionNota").addEventListener("input", () => {

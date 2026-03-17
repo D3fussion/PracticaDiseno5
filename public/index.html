@@ -24,6 +24,72 @@
 			<span class="loading loading-spinner loading-lg text-black" aria-hidden="true"></span>
 		</div>
 
+		<div id="loginWrapper" class="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+
+			<div
+				class="w-full max-w-sm bg-gradient-to-b from-[#1b2b4b] to-[#0d1525] border-[2.5px] border-white/90 rounded-[14px] shadow-[0_15px_35px_rgba(0,0,0,0.8)] p-5 relative overflow-hidden">
+
+				<div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none"></div>
+
+				<h2
+					class="text-white text-center font-bold text-xl mb-4 drop-shadow-[0_-1px_1px_rgba(0,0,0,1)] tracking-wide">
+					Iniciar Sesión
+				</h2>
+
+				<div id="loginOverlay" class="space-y-4 relative z-10">
+
+					<div
+						class="bg-white rounded-lg overflow-hidden border border-[#555] shadow-[inset_0_2px_5px_rgba(0,0,0,0.4)]">
+						<input type="email" placeholder="Correo electrónico" id="auth-email"
+							class="w-full px-3 py-2.5 text-base text-black placeholder-gray-400 border-b border-gray-300 focus:outline-none focus:bg-[#eef3ff]" />
+						<input type="password" placeholder="Contraseña" id="auth-password"
+							class="w-full px-3 py-2.5 text-base text-black placeholder-gray-400 focus:outline-none focus:bg-[#eef3ff]" />
+					</div>
+
+					<div class="space-y-2 mt-2">
+
+						<button id="btn-login-pass"
+							class="w-full relative group rounded-lg border border-[#142e66] shadow-[0_1px_3px_rgba(0,0,0,0.6)] overflow-hidden font-bold text-white text-base py-2.5 drop-shadow-[0_-1px_1px_rgba(0,0,0,0.8)] active:scale-[0.98] transition-transform">
+							<div
+								class="absolute inset-0 bg-linear-to-b from-[#7093db] via-[#3f67c2] to-[#2147a3] group-active:from-[#496fb8] group-active:to-[#173378]">
+							</div>
+							<div
+								class="absolute top-0 left-0 right-0 h-1/2 bg-linear-to-b from-white/50 to-white/5 rounded-t-lg">
+							</div>
+							<span class="relative z-10">Iniciar sesión</span>
+						</button>
+
+						<button id="btn-login-huella"
+							class="w-full relative group rounded-lg border border-[#222] shadow-[0_1px_3px_rgba(0,0,0,0.6)] overflow-hidden font-bold text-white text-base py-2.5 drop-shadow-[0_-1px_1px_rgba(0,0,0,0.8)] active:scale-[0.98] transition-transform">
+							<div
+								class="absolute inset-0 bg-linear-to-b from-[#8c8c8c] via-[#595959] to-[#363636] group-active:from-[#666666] group-active:to-[#262626]">
+							</div>
+							<div
+								class="absolute top-0 left-0 right-0 h-1/2 bg-linear-to-b from-white/40 to-white/5 rounded-t-lg">
+							</div>
+							<span class="relative z-10">Con datos biométricos</span>
+						</button>
+
+						<button id="btn-register"
+							class="w-full relative group rounded-lg border border-[#222] shadow-[0_1px_3px_rgba(0,0,0,0.6)] overflow-hidden font-bold text-white text-base py-2.5 drop-shadow-[0_-1px_1px_rgba(0,0,0,0.8)] active:scale-[0.98] transition-transform">
+							<div
+								class="absolute inset-0 bg-linear-to-b from-[#8c8c8c] via-[#595959] to-[#363636] group-active:from-[#666666] group-active:to-[#262626]">
+							</div>
+							<div
+								class="absolute top-0 left-0 right-0 h-1/2 bg-linear-to-b from-white/40 to-white/5 rounded-t-lg">
+							</div>
+							<span class="relative z-10">Crear cuenta</span>
+						</button>
+
+						<p id="mensajeLogin" class="mt-4 text-white">
+
+						</p>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<aside aria-label="Lista de notas (escritorio)"
 			class="hidden lg:flex w-80 flex-col bg-[#f9f9f9] relative z-10 border-r-[3px] border-black">
 			<div class="bg-linear-to-b from-[#f5f5f5] to-[#e0e0e0] border-b border-gray-400 pb-2">
@@ -102,10 +168,31 @@
 						</button>
 					</div>
 
-					<button onclick="crearTaskHTML()" aria-label="Crear nueva nota"
-						class="cursor-pointer transition-all duration-300 ease-in-out bg-linear-to-b from-[#8c6046] to-[#593822] active:scale-[0.85] text-[#f0e6d2] font-bold text-xl leading-none w-8 h-8 rounded-md border border-[#2a170b] shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] flex items-center justify-center">
-						<span aria-hidden="true">+</span>
-					</button>
+					<div class="flex gap-2">
+						<button onclick="crearTaskHTML()" aria-label="Crear nueva nota"
+							class="cursor-pointer transition-all duration-300 ease-in-out bg-linear-to-b from-[#8c6046] to-[#593822] active:scale-[0.85] text-[#f0e6d2] font-bold text-xl leading-none w-8 h-8 rounded-md border border-[#2a170b] shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] flex items-center justify-center">
+							<span aria-hidden="true">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+									stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									stroke-linejoin="round" class="w-5 h-5">
+									<path d="M5 12h14" />
+									<path d="M12 5v14" />
+								</svg>
+							</span>
+						</button>
+						<button onclick="cerrarSesion()" aria-label="Cerrar sesión"
+							class="cursor-pointer transition-all duration-300 ease-in-out bg-linear-to-b from-[#8c6046] to-[#593822] active:scale-[0.85] text-[#f0e6d2] font-bold text-xl leading-none w-8 h-8 rounded-md border border-[#2a170b] shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] flex items-center justify-center">
+							<span aria-hidden="true">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+									stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									stroke-linejoin="round" class="w-5 h-5">
+									<path d="m16 17 5-5-5-5" />
+									<path d="M21 12H9" />
+									<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+								</svg>
+							</span>
+						</button>
+					</div>
 				</header>
 
 				<div class="relative flex w-full h-full">
@@ -206,8 +293,6 @@
 		</div>
 	</div>
 
-	<!-- Templates -->
-
 	<template id="tarea-lista-template">
 		<li class="tarea-lista-inactiva">
 			<span class="tarea-lista-titulo truncate flex-1"></span>
@@ -240,7 +325,7 @@
 		</button>
 	</template>
 
-	<!-- Scripts -->
+
 
 	<script type="module" src="./src/js/main.js"></script>
 </body>

@@ -14,6 +14,10 @@ const TaskSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        userEmail: {
+            type: String,
+            required: [true, "Se necesita un correo para la tarea"],
+        },
     },
     { timestamps: true },
 );

@@ -128,16 +128,6 @@ updateTaskMutator.subscribe(({ loading, error, data }) => {
         renderizarLista("listaTareas", data);
         renderizarLista("listaTareasDrawer", data);
         actualizarContadores(data.length);
-
-        for (const ulId of ["listaTareas", "listaTareasDrawer"]) {
-            const ul = document.getElementById(ulId);
-            if (!ul) continue;
-            const li = ul.querySelector(`[data-id="${data._id}"]`);
-            if (li) {
-                li.querySelector(".tarea-lista-titulo").textContent =
-                    data.title;
-            }
-        }
     }
 });
 
